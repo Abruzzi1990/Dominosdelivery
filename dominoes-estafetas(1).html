@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#006491">
+<title>Domino's Estafetas</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #E31837;
+    --blue: #006491;
+    --dark: #0a0a0a;
+    --card: #111;
+    --border: #1e1e1e;
+    --text: #f0f0f0;
+    --muted: #666;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { background: var(--dark); color: var(--text); font-family: 'Barlow', sans-serif; min-height: 100dvh; overscroll-behavior: none; }
+
+  /* HEADER */
+  .header { background: var(--blue); padding: 14px 16px 12px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 50; box-shadow: 0 2px 20px rgba(0,0,0,0.5); }
+  .logo { width: 44px; height: 44px; flex-shrink: 0; }
+  .header-text { flex: 1; }
+  .header-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 22px; letter-spacing: 0.5px; line-height: 1; color: #fff; }
+  .header-title span { color: #FFD700; }
+  .header-sub { font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 2px; }
+  .order-badge { background: var(--red); color: #fff; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 15px; padding: 4px 10px; border-radius: 20px; white-space: nowrap; }
+
+  /* MAIN */
+  .main { padding: 14px 14px 160px; max-width: 520px; margin: 0 auto; }
+
+  /* UPLOAD */
+  .upload-btn { width: 100%; background: var(--red); border: none; border-radius: 14px; padding: 0; cursor: pointer; position: relative; overflow: hidden; margin-bottom: 12px; transition: transform 0.15s, box-shadow 0.15s; box-shadow: 0 4px 20px rgba(227,24,55,0.35); }
+  .upload-btn:active { transform: scale(0.97); }
+  .upload-btn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; font-size: 0; }
+  .upload-inner { display: flex; align-items: center; gap: 14px; padding: 16px 20px; }
+  .upload-cam { font-size: 36px; line-height: 1; flex-shrink: 0; }
+  .upload-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 20px; color: #fff; letter-spacing: 0.5px; }
+  .upload-sub { font-size: 12px; color: rgba(255,255,255,0.75); margin-top: 1px; }
+
+  /* ORIGIN */
+  .origin-strip { background: #0a1a24; border: 1px solid #0d3a52; border-radius: 10px; padding: 10px 14px; display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .origin-dot { width: 10px; height: 10px; background: var(--blue); border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 8px var(--blue); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.4)} }
+  .origin-label { font-size: 10px; color: #4a9fc0; text-transform: uppercase; letter-spacing: 1.5px; }
+  .origin-name { font-size: 13px; color: #aad4e8; font-weight: 600; }
+
+  /* TABS */
+  .tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+  .tab { flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 6px; text-align: center; cursor: pointer; transition: all 0.2s; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 14px; color: #555; letter-spacing: 0.5px; }
+  .tab.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+
+  /* EMPTY */
+  .empty { text-align: center; padding: 48px 20px; }
+  .empty-icon { font-size: 56px; display: block; margin-bottom: 14px; opacity: 0.6; }
+  .empty-title { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 700; color: #444; margin-bottom: 6px; }
+  .empty-sub { font-size: 13px; line-height: 1.6; color: #444; }
+
+  /* ANALYZING */
+  .analyzing { background: #0d1a0d; border: 1px solid #1a3a1a; border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 12px; animation: fadeIn 0.3s ease; }
+  .analyzing-spinner { width: 32px; height: 32px; border: 3px solid rgba(227,24,55,0.2); border-top-color: var(--red); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 10px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .analyzing-text { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; color: #8f8; }
+  .analyzing-sub { font-size: 12px; color: #555; margin-top: 4px; }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  @keyframes slideUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+  /* SECTION LABEL */
+  .section-label { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #444; margin-bottom: 8px; }
+
+  /* ALL ORDERS LIST */
+  .deliveries { display: flex; flex-direction: column; gap: 8px; }
+  .delivery-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; animation: slideUp 0.25s ease; }
+  .stop-num { width: 34px; height: 34px; background: var(--red); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 12px; color: #fff; flex-shrink: 0; line-height: 1; text-align: center; }
+  .card-body { flex: 1; min-width: 0; }
+  .card-tag { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); margin-bottom: 3px; }
+  .card-addr { font-size: 14px; color: var(--text); line-height: 1.4; font-weight: 500; word-break: break-word; }
+  .card-addr.editing { display: none; }
+  .edit-input { background: #0a0a0a; border: 1px solid var(--red); color: #fff; font-family: 'Barlow', sans-serif; font-size: 13px; padding: 6px 10px; border-radius: 8px; width: 100%; outline: none; margin-top: 3px; }
+  .card-actions { display: flex; gap: 5px; margin-top: 7px; }
+  .btn-action { background: none; border: 1px solid var(--border); color: #777; font-family: 'Barlow', sans-serif; font-size: 11px; padding: 3px 8px; border-radius: 6px; cursor: pointer; transition: all 0.15s; }
+  .btn-action:hover { border-color: #555; color: #ccc; }
+  .btn-action.del { border-color: #2a1010; color: #a44; }
+  .btn-action.del:hover { background: var(--red); color: #fff; border-color: var(--red); }
+  .btn-action.save { border-color: #1a3a1a; color: #4a4; }
+  .connector { width: 2px; height: 8px; background: var(--border); margin-left: 16px; }
+
+  /* GROUPS VIEW */
+  .group-block { background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 10px; animation: slideUp 0.25s ease; }
+  .group-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: #0d1a24; border-bottom: 1px solid var(--border); }
+  .group-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 16px; color: #fff; letter-spacing: 0.5px; }
+  .group-count { font-size: 11px; color: #4a9fc0; }
+  .btn-maps-group { background: var(--blue); border: none; border-radius: 8px; color: #fff; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 13px; padding: 6px 12px; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.15s; white-space: nowrap; }
+  .btn-maps-group:active { transform: scale(0.95); }
+  .group-orders { padding: 8px 14px 12px; display: flex; flex-direction: column; gap: 6px; }
+  .group-order-row { display: flex; align-items: flex-start; gap: 10px; padding: 6px 0; border-bottom: 1px solid #1a1a1a; }
+  .group-order-row:last-child { border-bottom: none; }
+  .group-num { width: 30px; height: 30px; background: var(--red); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 11px; color: #fff; flex-shrink: 0; }
+  .group-addr { font-size: 13px; color: #ccc; line-height: 1.4; flex: 1; padding-top: 5px; word-break: break-word; }
+  .group-solo { background: #1a1a0a; border-color: #3a3a1a; }
+  .group-solo .group-header { background: #1a1a0a; }
+  .solo-badge { font-size: 10px; color: #888; background: #2a2a1a; padding: 2px 7px; border-radius: 10px; }
+
+  /* BOTTOM BAR */
+  .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, #000 65%, transparent); padding: 14px 14px; z-index: 40; }
+  .bottom-inner { max-width: 520px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; }
+  .btn-maps { width: 100%; background: var(--blue); border: none; border-radius: 14px; color: #fff; font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 19px; letter-spacing: 0.5px; padding: 16px 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.15s; box-shadow: 0 4px 20px rgba(0,100,145,0.4); }
+  .btn-maps:disabled { background: #1a1a1a; color: #444; box-shadow: none; cursor: not-allowed; }
+  .btn-maps:not(:disabled):active { transform: scale(0.97); }
+  .btn-group-all { width: 100%; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 10px; color: #888; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 14px; padding: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.15s; }
+  .btn-group-all:not(:disabled):hover { border-color: var(--blue); color: #4a9fc0; }
+  .btn-group-all:disabled { opacity: 0.3; cursor: not-allowed; }
+  .btn-clear { width: 100%; background: none; border: 1px solid var(--border); border-radius: 10px; color: #555; font-family: 'Barlow', sans-serif; font-size: 13px; padding: 9px; cursor: pointer; transition: all 0.15s; }
+  .btn-clear:hover { border-color: var(--red); color: var(--red); }
+
+  /* TOAST */
+  .toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%) translateY(-10px); background: #fff; color: #000; font-family: 'Barlow', sans-serif; font-size: 13px; font-weight: 600; padding: 10px 18px; border-radius: 100px; z-index: 200; opacity: 0; transition: all 0.25s; white-space: nowrap; pointer-events: none; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <svg class="logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" rx="18" fill="#E31837"/>
+    <rect x="8" y="8" width="84" height="84" rx="12" fill="#E31837"/>
+    <line x1="50" y1="10" x2="50" y2="90" stroke="white" stroke-width="4"/>
+    <circle cx="29" cy="25" r="7" fill="white"/>
+    <circle cx="29" cy="50" r="7" fill="white"/>
+    <circle cx="29" cy="75" r="7" fill="white"/>
+    <circle cx="71" cy="33" r="7" fill="#006491"/>
+    <circle cx="71" cy="67" r="7" fill="#006491"/>
+  </svg>
+  <div class="header-text">
+    <div class="header-title">DOMINO'S <span>AMIAL</span></div>
+    <div class="header-sub">Gestão de Estafetas</div>
+  </div>
+  <div class="order-badge" id="badge" style="display:none">0</div>
+</div>
+
+<div class="main">
+  <div class="upload-btn">
+    <input type="file" accept="image/*" multiple capture="environment" id="fileInput">
+    <div class="upload-inner">
+      <div class="upload-cam">📷</div>
+      <div class="upload-txt">
+        <div class="upload-title">FOTOGRAFAR PEDIDOS</div>
+        <div class="upload-sub">Ecrã, talões ou lista de entregas</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="origin-strip">
+    <div class="origin-dot"></div>
+    <div>
+      <div class="origin-label">Partida fixa</div>
+      <div class="origin-name">🍕 Domino's Pizza — Amial, Porto</div>
+    </div>
+  </div>
+
+  <!-- TABS (só visíveis quando há pedidos) -->
+  <div class="tabs" id="tabs" style="display:none">
+    <div class="tab active" id="tabAll" onclick="switchTab('all')">📋 TODOS OS PEDIDOS</div>
+    <div class="tab" id="tabGroups" onclick="switchTab('groups')">🚗 POR ESTAFETA</div>
+  </div>
+
+  <div id="emptyState" class="empty">
+    <span class="empty-icon">📺</span>
+    <div class="empty-title">PRONTO PARA ENTREGAR</div>
+    <div class="empty-sub">Fotografa o ecrã com os pedidos<br>e gera a rota em segundos</div>
+  </div>
+
+  <div class="analyzing" id="analyzingState" style="display:none">
+    <div class="analyzing-spinner"></div>
+    <div class="analyzing-text">A LER MORADAS...</div>
+    <div class="analyzing-sub">Aguarda um momento</div>
+  </div>
+
+  <!-- Tab: Todos os pedidos -->
+  <div id="allView" style="display:none">
+    <div class="section-label">Pedidos por ordem</div>
+    <div class="deliveries" id="deliveriesList"></div>
+  </div>
+
+  <!-- Tab: Por estafeta (grupos de 2) -->
+  <div id="groupsView" style="display:none">
+    <div class="section-label" id="groupsLabel">Agrupado por proximidade · 2 por estafeta</div>
+    <div id="groupsList"></div>
+  </div>
+</div>
+
+<div class="bottom-bar">
+  <div class="bottom-inner">
+    <button class="btn-maps" id="btnMaps" disabled onclick="openMapsAll()">
+      🗺️ <span id="btnText">FOTOGRAFA OS PEDIDOS</span>
+    </button>
+    <button class="btn-group-all" id="btnGroupAll" disabled onclick="groupOrders()">
+      🚗 AGRUPAR POR PROXIMIDADE (2 POR ESTAFETA)
+    </button>
+    <button class="btn-clear" id="btnClear" style="display:none" onclick="clearAll()">
+      Limpar tudo
+    </button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STORE = "Domino's Pizza Amial, Rua do Amial, Porto, Portugal";
+let orders = [];
+let groups = [];
+let editingIdx = null;
+let currentTab = 'all';
+
+const fileInput = document.getElementById('fileInput');
+
+fileInput.addEventListener('change', async (e) => {
+  const files = Array.from(e.target.files).filter(f => f.type.startsWith('image/'));
+  if (!files.length) return;
+  fileInput.value = '';
+  await processFiles(files);
+});
+
+async function processFiles(files) {
+  showAnalyzing(true);
+  for (const file of files) {
+    try {
+      const { base64, mimeType } = await toBase64(file);
+      const found = await extractAddresses(base64, mimeType);
+      orders.push(...found);
+      orders.sort((a, b) => parseInt(a.num || 9999) - parseInt(b.num || 9999));
+      groups = [];
+      render();
+    } catch (err) {
+      showToast('⚠️ ' + (err.message || 'Erro ao analisar'));
+    }
+  }
+  showAnalyzing(false);
+}
+
+async function extractAddresses(base64, mimeType) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 800,
+      messages: [{
+        role: 'user',
+        content: [
+          { type: 'image', source: { type: 'base64', media_type: mimeType, data: base64 } },
+          { type: 'text', text: `Domino's Pizza delivery system in Porto, Portugal.
+Extract ONLY delivery orders (ignore Carryout/pickup).
+Format each line: ORDER_NUM|ADDRESS
+Example: 27|Rua das Flores 123, 4200-001 Porto, Portugal
+Include street number, street name, postal code, city.
+One per line, no extra text. If none: NO_ADDRESS_FOUND` }
+        ]
+      }]
+    })
+  });
+  const data = await res.json();
+  const text = (data.content?.[0]?.text || '').trim();
+  if (!text || text === 'NO_ADDRESS_FOUND') throw new Error('Nenhuma morada encontrada');
+  const items = text.split('\n').map(l => l.trim()).filter(l => l.includes('|')).map(l => {
+    const idx = l.indexOf('|');
+    return { num: l.slice(0, idx).replace(/\D/g, ''), addr: l.slice(idx + 1).trim() };
+  }).filter(o => o.addr.length > 6);
+  if (!items.length) throw new Error('Nenhuma morada encontrada');
+  return items;
+}
+
+async function groupOrders() {
+  if (orders.length < 2) {
+    showToast('Precisas de pelo menos 2 pedidos');
+    return;
+  }
+
+  showAnalyzing(true);
+  document.getElementById('analyzingState').querySelector('.analyzing-text').textContent = 'A AGRUPAR POR PROXIMIDADE...';
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 800,
+        messages: [{
+          role: 'user',
+          content: `You are a delivery route optimizer in Porto, Portugal.
+Group these delivery orders into pairs (2 per driver) based on geographic proximity.
+If odd number, one driver gets 1 order alone.
+
+Orders:
+${orders.map(o => `#${o.num}: ${o.addr}`).join('\n')}
+
+Return ONLY a JSON array of groups. Each group is an array of order numbers (as strings).
+Example: [["20","22"],["23","27"],["30"]]
+No explanation, just the JSON array.`
+        }]
+      })
+    });
+    const data = await res.json();
+    const text = (data.content?.[0]?.text || '').trim();
+    const parsed = JSON.parse(text.replace(/```json|```/g, '').trim());
+
+    // Build groups with full order data
+    groups = parsed.map(g => g.map(num => orders.find(o => o.num === num)).filter(Boolean));
+    groups = groups.filter(g => g.length > 0);
+
+    switchTab('groups');
+    showToast('✓ Agrupado por proximidade!');
+  } catch (err) {
+    showToast('⚠️ Erro ao agrupar');
+  }
+
+  showAnalyzing(false);
+  document.getElementById('analyzingState').querySelector('.analyzing-text').textContent = 'A LER MORADAS...';
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('tabAll').className = 'tab' + (tab === 'all' ? ' active' : '');
+  document.getElementById('tabGroups').className = 'tab' + (tab === 'groups' ? ' active' : '');
+  document.getElementById('allView').style.display = tab === 'all' ? 'block' : 'none';
+  document.getElementById('groupsView').style.display = tab === 'groups' ? 'block' : 'none';
+
+  const btnMaps = document.getElementById('btnMaps');
+  const btnGroupAll = document.getElementById('btnGroupAll');
+  if (tab === 'all') {
+    btnMaps.style.display = 'flex';
+    btnGroupAll.style.display = 'flex';
+  } else {
+    btnMaps.style.display = 'none';
+    btnGroupAll.style.display = 'none';
+  }
+}
+
+function render() {
+  const count = orders.length;
+  document.getElementById('emptyState').style.display = count === 0 ? 'block' : 'none';
+  document.getElementById('allView').style.display = (count > 0 && currentTab === 'all') ? 'block' : 'none';
+  document.getElementById('groupsView').style.display = (count > 0 && currentTab === 'groups') ? 'block' : 'none';
+  document.getElementById('tabs').style.display = count > 0 ? 'flex' : 'none';
+  document.getElementById('btnClear').style.display = count > 0 ? 'block' : 'none';
+  document.getElementById('badge').style.display = count > 0 ? 'block' : 'none';
+  document.getElementById('badge').textContent = count + (count === 1 ? ' entrega' : ' entregas');
+
+  const btnMaps = document.getElementById('btnMaps');
+  const btnGroupAll = document.getElementById('btnGroupAll');
+  btnMaps.disabled = count === 0;
+  btnGroupAll.disabled = count < 2;
+  document.getElementById('btnText').textContent = count === 0 ? 'FOTOGRAFA OS PEDIDOS' : `ROTA COMPLETA — ${count} PARAGEM${count !== 1 ? 'S' : ''}`;
+
+  // Render all orders list
+  const list = document.getElementById('deliveriesList');
+  list.innerHTML = '';
+  orders.forEach((order, i) => {
+    const isEditing = editingIdx === i;
+    const label = order.num ? `#${order.num}` : `${i+1}`;
+    if (i > 0) { const c = document.createElement('div'); c.className = 'connector'; list.appendChild(c); }
+    const card = document.createElement('div');
+    card.className = 'delivery-card';
+    card.innerHTML = `
+      <div class="stop-num">${label}</div>
+      <div class="card-body">
+        <div class="card-tag">Pedido ${label}</div>
+        <div class="card-addr ${isEditing ? 'editing' : ''}">${order.addr}</div>
+        ${isEditing ? `<input class="edit-input" id="ei-${i}" value="${order.addr.replace(/"/g,'&quot;')}" onkeydown="if(event.key==='Enter')saveEdit(${i})">` : ''}
+        <div class="card-actions">
+          ${isEditing
+            ? `<button class="btn-action save" onclick="saveEdit(${i})">✓ guardar</button>`
+            : `<button class="btn-action" onclick="startEdit(${i})">✏️ editar</button>`}
+          <button class="btn-action del" onclick="removeOrder(${i})">× remover</button>
+        </div>
+      </div>`;
+    list.appendChild(card);
+    if (isEditing) setTimeout(() => { const inp = document.getElementById(`ei-${i}`); if(inp) inp.focus(); }, 50);
+  });
+
+  // Render groups
+  renderGroups();
+}
+
+function renderGroups() {
+  const gl = document.getElementById('groupsList');
+  gl.innerHTML = '';
+  if (!groups.length) {
+    gl.innerHTML = '<div class="empty" style="padding:30px 0"><span style="font-size:36px;display:block;margin-bottom:10px">🚗</span><div style="color:#444;font-size:13px">Carrega em "Agrupar por Proximidade"<br>para ver os grupos por estafeta</div></div>';
+    return;
+  }
+  const colors = ['#006491','#E31837','#2a7a2a','#7a4a00','#4a0070'];
+  groups.forEach((grp, gi) => {
+    const isSolo = grp.length === 1;
+    const block = document.createElement('div');
+    block.className = 'group-block' + (isSolo ? ' group-solo' : '');
+    const color = colors[gi % colors.length];
+    block.innerHTML = `
+      <div class="group-header">
+        <div>
+          <div class="group-title" style="color:${color}">🚗 ESTAFETA ${gi + 1}</div>
+          <div class="group-count">${grp.length} entrega${grp.length !== 1 ? 's' : ''} · ${grp.map(o=>'#'+o.num).join(' + ')}</div>
+        </div>
+        <button class="btn-maps-group" style="background:${color}" onclick="openMapsGroup(${gi})">
+          🗺️ ABRIR
+        </button>
+      </div>
+      <div class="group-orders">
+        ${grp.map((o,oi) => `
+          <div class="group-order-row">
+            <div class="group-num" style="background:${color}">#${o.num}</div>
+            <div class="group-addr">${o.addr}</div>
+          </div>`).join('')}
+      </div>`;
+    gl.appendChild(block);
+  });
+}
+
+function startEdit(i) { editingIdx = i; render(); }
+function saveEdit(i) {
+  const inp = document.getElementById(`ei-${i}`);
+  if (inp && inp.value.trim()) orders[i].addr = inp.value.trim();
+  editingIdx = null; render();
+}
+function removeOrder(i) {
+  orders.splice(i, 1);
+  groups = [];
+  if (editingIdx === i) editingIdx = null;
+  render();
+}
+function clearAll() { orders = []; groups = []; editingIdx = null; switchTab('all'); render(); }
+
+function openMapsAll() {
+  if (!orders.length) return;
+  const origin = encodeURIComponent(STORE);
+  const dest = encodeURIComponent(orders[orders.length - 1].addr);
+  const wps = orders.slice(0, -1).map(o => encodeURIComponent(o.addr)).join('|');
+  let url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${dest}`;
+  if (wps) url += `&waypoints=${wps}`;
+  url += `&travelmode=driving`;
+  window.open(url, '_blank');
+}
+
+function openMapsGroup(gi) {
+  const grp = groups[gi];
+  if (!grp || !grp.length) return;
+  const origin = encodeURIComponent(STORE);
+  const dest = encodeURIComponent(grp[grp.length - 1].addr);
+  const wps = grp.slice(0, -1).map(o => encodeURIComponent(o.addr)).join('|');
+  let url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${dest}`;
+  if (wps) url += `&waypoints=${wps}`;
+  url += `&travelmode=driving`;
+  window.open(url, '_blank');
+}
+
+function showAnalyzing(show) {
+  document.getElementById('analyzingState').style.display = show ? 'block' : 'none';
+  if (show) document.getElementById('emptyState').style.display = 'none';
+  else render();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function toBase64(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res({ base64: r.result.split(',')[1], mimeType: file.type });
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+render();
+</script>
+</body>
+</html>
