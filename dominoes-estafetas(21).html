@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#E31837">
+<title>Domino's Estafetas</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --red: #E31837;
+  --blue: #006491;
+  --dark: #1a1a2e;
+  --card: #16213e;
+  --card2: #0f3460;
+  --border: #2a2a4a;
+  --text: #f0f0f0;
+  --muted: #777;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
+body { background: var(--dark); color: var(--text); font-family: 'Barlow', sans-serif; min-height: 100dvh; overscroll-behavior: none; }
+
+/* ── HEADER ── */
+.header {
+  background: linear-gradient(135deg, #E31837 0%, #b01020 100%);
+  padding: 16px 16px 14px;
+  display: flex; align-items: center; gap: 12px;
+  position: sticky; top: 0; z-index: 50;
+  box-shadow: 0 4px 24px rgba(227,24,55,0.4);
+}
+.logo-wrap { flex-shrink: 0; }
+.logo-svg { width: 46px; height: 46px; display: block; }
+.header-text { flex: 1; }
+.header-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 24px; color: #fff; line-height: 1; letter-spacing: 0.5px; }
+.header-title span { color: #FFD700; }
+.header-sub { font-size: 11px; color: rgba(255,255,255,0.65); margin-top: 3px; letter-spacing: 0.3px; }
+.header-badge {
+  background: rgba(0,0,0,0.25); color: #fff;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 14px;
+  padding: 5px 12px; border-radius: 20px; white-space: nowrap; border: 1px solid rgba(255,255,255,0.2);
+}
+
+/* ── MAIN ── */
+.main { padding: 18px 14px 200px; max-width: 500px; margin: 0 auto; }
+
+/* ── ACTION BUTTONS ── */
+.action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.action-btn {
+  border: none; border-radius: 16px; padding: 18px 12px;
+  cursor: pointer; position: relative; overflow: hidden;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+  transition: transform 0.15s, box-shadow 0.15s;
+  text-align: center;
+}
+.action-btn:active { transform: scale(0.95); }
+.action-btn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; font-size: 0; }
+.action-btn.camera { background: linear-gradient(135deg, var(--red), #b01020); box-shadow: 0 4px 20px rgba(227,24,55,0.35); }
+.action-btn.gallery { background: linear-gradient(135deg, var(--blue), #004a6e); box-shadow: 0 4px 20px rgba(0,100,145,0.35); }
+.action-btn-icon { font-size: 32px; line-height: 1; }
+.action-btn-label { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 15px; color: #fff; letter-spacing: 0.5px; }
+.action-btn-sub { font-size: 11px; color: rgba(255,255,255,0.7); }
+
+/* ── ORIGIN CARD ── */
+.origin-card {
+  background: var(--card); border: 1px solid #0d3a52;
+  border-radius: 14px; padding: 12px 16px;
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 16px;
+}
+.origin-icon { font-size: 28px; flex-shrink: 0; }
+.origin-info { flex: 1; }
+.origin-label { font-size: 10px; color: #4a9fc0; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 2px; }
+.origin-name { font-size: 14px; color: #aad4e8; font-weight: 600; }
+.origin-dot { width: 8px; height: 8px; background: #4CAF50; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 8px #4CAF50; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.5)} }
+
+/* ── ANALYZING ── */
+.analyzing {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 16px; padding: 28px 20px; text-align: center;
+  margin-bottom: 16px; animation: fadeIn 0.3s ease;
+}
+.spinner-wrap { position: relative; width: 48px; height: 48px; margin: 0 auto 14px; }
+.spinner-ring { width: 48px; height: 48px; border: 3px solid rgba(227,24,55,0.15); border-top-color: var(--red); border-radius: 50%; animation: spin 0.8s linear infinite; position: absolute; }
+.spinner-dot { width: 12px; height: 12px; background: var(--red); border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+@keyframes spin { to { transform: rotate(360deg); } }
+.analyzing-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 20px; color: #fff; letter-spacing: 0.5px; }
+.analyzing-sub { font-size: 12px; color: var(--muted); margin-top: 5px; }
+
+/* ── EMPTY ── */
+.empty { text-align: center; padding: 40px 20px; }
+.empty-icon { font-size: 64px; display: block; margin-bottom: 16px; }
+.empty-title { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 900; color: #333; margin-bottom: 8px; letter-spacing: 0.5px; }
+.empty-sub { font-size: 13px; color: #333; line-height: 1.7; }
+
+/* ── DELIVERIES ── */
+.deliveries-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px; padding: 0 2px;
+}
+.deliveries-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 18px; color: #fff; letter-spacing: 0.5px; }
+.deliveries-count { font-size: 12px; color: var(--muted); background: var(--card2); padding: 3px 10px; border-radius: 20px; border: 1px solid var(--border); }
+
+.deliveries-list { display: flex; flex-direction: column; gap: 0; position: relative; }
+
+/* Timeline line */
+.deliveries-list::before {
+  content: ''; position: absolute;
+  left: 20px; top: 40px; bottom: 40px;
+  width: 2px; background: linear-gradient(to bottom, var(--red), var(--blue));
+  opacity: 0.3; border-radius: 2px;
+}
+
+.delivery-item {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 10px 0; position: relative;
+  animation: slideUp 0.25s ease;
+}
+@keyframes slideUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+.delivery-num {
+  width: 42px; height: 42px; flex-shrink: 0;
+  background: var(--card2); border: 2px solid var(--border);
+  border-radius: 50%; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 900;
+  z-index: 1; transition: all 0.2s;
+}
+.delivery-num .num-label { font-size: 9px; color: var(--muted); line-height: 1; text-transform: uppercase; letter-spacing: 0.5px; }
+.delivery-num .num-val { font-size: 14px; color: #fff; line-height: 1; margin-top: 1px; }
+.delivery-item:first-child .delivery-num { background: #1a0005; border-color: var(--red); }
+.delivery-item:first-child .delivery-num .num-val { color: var(--red); }
+.delivery-item:last-child .delivery-num { background: #001a24; border-color: var(--blue); }
+.delivery-item:last-child .delivery-num .num-val { color: #4a9fc0; }
+
+.delivery-card {
+  flex: 1; background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 12px 14px;
+  transition: border-color 0.2s;
+}
+.delivery-card:hover { border-color: #333; }
+.delivery-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+.delivery-order-num {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 12px;
+  color: var(--red); background: #1a0005; padding: 2px 8px;
+  border-radius: 20px; border: 1px solid #3a0010; white-space: nowrap; flex-shrink: 0;
+}
+.btn-del { background: none; border: none; color: #333; font-size: 18px; cursor: pointer; line-height: 1; padding: 0 2px; transition: color 0.15s; flex-shrink: 0; }
+.btn-del:hover { color: var(--red); }
+.delivery-addr { font-size: 14px; color: var(--text); line-height: 1.5; font-weight: 500; word-break: break-word; }
+.delivery-addr.editing { display: none; }
+.edit-input { background: #12122a; border: 1px solid var(--red); color: #fff; font-family: 'Barlow', sans-serif; font-size: 13px; padding: 8px 10px; border-radius: 8px; width: 100%; outline: none; margin-top: 4px; }
+.delivery-actions { display: flex; gap: 6px; margin-top: 8px; }
+.btn-sm { background: none; border: 1px solid var(--border); color: #666; font-family: 'Barlow', sans-serif; font-size: 11px; padding: 4px 10px; border-radius: 6px; cursor: pointer; transition: all 0.15s; }
+.btn-sm:hover { border-color: #555; color: #ccc; }
+.btn-sm.save { border-color: #1a3a1a; color: #4CAF50; }
+
+/* ── GROUPS ── */
+.groups-list { display: flex; flex-direction: column; gap: 12px; }
+.group-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; animation: slideUp 0.25s ease; }
+.group-card-header { padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.group-driver { display: flex; align-items: center; gap: 10px; }
+.group-avatar { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.group-info { }
+.group-name { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 16px; color: #fff; letter-spacing: 0.3px; }
+.group-orders-label { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.btn-open-maps { border: none; border-radius: 10px; color: #fff; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 14px; padding: 8px 14px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.15s; white-space: nowrap; flex-shrink: 0; }
+.btn-open-maps:active { transform: scale(0.95); }
+.group-stops { border-top: 1px solid var(--border); }
+.group-stop { display: flex; align-items: flex-start; gap: 12px; padding: 11px 16px; border-bottom: 1px solid #161616; }
+.group-stop:last-child { border-bottom: none; }
+.group-stop-num { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 11px; flex-shrink: 0; margin-top: 2px; }
+.group-stop-addr { font-size: 13px; color: #ccc; line-height: 1.5; flex: 1; word-break: break-word; }
+
+/* ── TABS ── */
+.tabs { display: flex; gap: 6px; margin-bottom: 16px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 4px; }
+.tab { flex: 1; padding: 9px 6px; text-align: center; cursor: pointer; border-radius: 9px; transition: all 0.2s; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 13px; color: var(--muted); letter-spacing: 0.3px; }
+.tab.active { background: var(--card2); color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+
+/* ── BOTTOM BAR ── */
+.bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; padding: 12px 14px 20px; background: linear-gradient(to top, #1a1a2e 55%, transparent); z-index: 40; }
+.bottom-inner { max-width: 500px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; }
+
+.btn-main {
+  width: 100%; border: none; border-radius: 16px; color: #fff;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 20px;
+  letter-spacing: 0.5px; padding: 18px 20px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  transition: all 0.15s;
+}
+.btn-main.maps { background: linear-gradient(135deg, var(--blue), #004a6e); box-shadow: 0 4px 20px rgba(0,100,145,0.4); }
+.btn-main.maps:disabled { background: #1a1a1a; color: #444; box-shadow: none; cursor: not-allowed; }
+.btn-main.maps:not(:disabled):active { transform: scale(0.97); }
+.btn-main.group { background: linear-gradient(135deg, #2a5a00, #1a3a00); box-shadow: 0 4px 16px rgba(42,90,0,0.3); }
+.btn-main.group:disabled { background: #1a1a1a; color: #444; box-shadow: none; cursor: not-allowed; }
+.btn-main.group:not(:disabled):active { transform: scale(0.97); }
+
+.btn-secondary { width: 100%; background: none; border: 1px solid var(--border); border-radius: 10px; color: #555; font-family: 'Barlow', sans-serif; font-size: 13px; padding: 10px; cursor: pointer; transition: all 0.15s; }
+.btn-secondary:hover { border-color: var(--red); color: var(--red); }
+
+/* TOAST */
+.toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%) translateY(-12px); background: #fff; color: #000; font-family: 'Barlow', sans-serif; font-size: 13px; font-weight: 600; padding: 10px 20px; border-radius: 100px; z-index: 300; opacity: 0; transition: all 0.25s; pointer-events: none; white-space: nowrap; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* STORE SELECTOR */
+  .store-selector-wrap { margin-bottom: 14px; }
+  .store-selector-label { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #555; margin-bottom: 8px; padding: 0 2px; }
+  .store-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+  .store-btn {
+    flex: 1; min-width: calc(50% - 3px);
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px 12px;
+    cursor: pointer; transition: all 0.2s; text-align: left;
+  }
+  .store-btn.active { background: #1a0005; border-color: var(--red); }
+  .store-btn-name { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 14px; color: #ccc; }
+  .store-btn.active .store-btn-name { color: var(--red); }
+  .store-btn-city { font-size: 11px; color: #555; margin-top: 2px; }
+  .store-btn.active .store-btn-city { color: #a44; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo-wrap">
+    <img src="data:image/png;base64,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" style="width:46px;height:46px;object-fit:contain;display:block;" alt="Domino's">
+  </div>
+  <div class="header-text">
+    <div class="header-title">DOMINO'S <span>AMIAL</span></div>
+    <div class="header-sub">Gestão de Estafetas · Porto</div>
+    <div style="font-size:10px;color:rgba(255,255,255,0.45);margin-top:2px;letter-spacing:0.3px;">Powered by <span style="color:#FFD700;font-weight:600;">André Machado</span></div>
+  </div>
+  <div class="header-badge" id="badge" style="display:none">0 entregas</div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- ACTION BUTTONS -->
+  <div class="action-row">
+    <div class="action-btn camera">
+      <input type="file" accept="image/*" capture="environment" id="cameraInput">
+      <div class="action-btn-icon">📷</div>
+      <div class="action-btn-label">CÂMARA</div>
+      <div class="action-btn-sub">Tirar foto agora</div>
+    </div>
+    <div class="action-btn gallery">
+      <input type="file" accept="image/*" multiple id="galleryInput">
+      <div class="action-btn-icon">🖼️</div>
+      <div class="action-btn-label">GALERIA</div>
+      <div class="action-btn-sub">Escolher imagem</div>
+    </div>
+  </div>
+
+  <!-- ORIGIN -->
+  <!-- STORE SELECTOR -->
+  <div style="margin-bottom:14px;">
+    <div style="font-size:10px;text-transform:uppercase;letter-spacing:2px;color:#555;margin-bottom:8px;padding:0 2px;">🍕 Loja de partida</div>
+    <div style="position:relative;">
+      <select id="storeSelect" onchange="selectStore(this.value)" style="
+        width:100%; background:#16213e; border:2px solid #E31837;
+        border-radius:12px; color:#fff; font-family:'Barlow Condensed',sans-serif;
+        font-weight:700; font-size:16px; padding:14px 44px 14px 16px;
+        cursor:pointer; outline:none; appearance:none; -webkit-appearance:none;
+        letter-spacing:0.5px; -webkit-appearance:none; -moz-appearance:none;
+      ">
+        <option value="amial" style="background:#16213e">Amial - Porto</option>
+        <option value="campoalegre" style="background:#16213e">Campo Alegre - Porto</option>
+        <option value="campusjoao" style="background:#16213e">Campus S.Joao - Porto</option>
+        <option value="matosinhos" style="background:#16213e">Matosinhos - Matosinhos</option>
+        <option value="maia" style="background:#16213e">Maia - Maia</option>
+        <option value="gaia" style="background:#16213e">Gaia Centro - Vila Nova de Gaia</option>
+        <option value="canelas" style="background:#16213e">Canelas - Vila Nova de Gaia</option>
+      </select>
+      <div style="position:absolute;right:14px;top:50%;transform:translateY(-50%);pointer-events:none;color:#E31837;font-size:18px;">▼</div>
+    </div>
+  </div>
+
+  <!-- ANALYZING -->
+  <div class="analyzing" id="analyzingState" style="display:none">
+    <div class="spinner-wrap">
+      <div class="spinner-ring"></div>
+      <div class="spinner-dot"></div>
+    </div>
+    <div class="analyzing-title" id="analyzingTitle">A LER PEDIDOS...</div>
+    <div class="analyzing-sub" id="analyzingSub">A IA está a extrair as moradas</div>
+  </div>
+
+  <!-- EMPTY -->
+  <div class="empty" id="emptyState">
+    <span class="empty-icon">🛵</span>
+    <div class="empty-title">PRONTO A ENTREGAR</div>
+    <div class="empty-sub">Usa a câmara ou galeria<br>para fotografar os pedidos</div>
+  </div>
+
+  <!-- CONTENT (tabs + lists) -->
+  <div id="contentArea" style="display:none">
+
+    <!-- TABS -->
+    <div class="tabs">
+      <div class="tab active" id="tabAll" onclick="switchTab('all')">📋 PEDIDOS</div>
+      <div class="tab" id="tabGroups" onclick="switchTab('groups')">🚗 ESTAFETAS</div>
+    </div>
+
+    <!-- ALL ORDERS -->
+    <div id="allView">
+      <div class="deliveries-header">
+        <div class="deliveries-title">Lista de Entregas</div>
+        <div class="deliveries-count" id="deliveriesCount">0 pedidos</div>
+      </div>
+      <div class="deliveries-list" id="deliveriesList"></div>
+    </div>
+
+    <!-- GROUPS -->
+    <div id="groupsView" style="display:none">
+      <div class="deliveries-header">
+        <div class="deliveries-title">Por Estafeta</div>
+        <div class="deliveries-count" id="groupsCount">2 por driver</div>
+      </div>
+      <div class="groups-list" id="groupsList"></div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- BOTTOM BAR -->
+<div class="bottom-bar">
+  <div class="bottom-inner">
+    <button class="btn-main maps" id="btnMaps" disabled onclick="openMapsAll()">
+      🗺️ <span id="btnMapsText">ABRIR ROTA NO MAPS</span>
+    </button>
+    <button class="btn-main group" id="btnGroup" disabled onclick="groupOrders()">
+      🚗 <span>ORGANIZAR POR ESTAFETA</span>
+    </button>
+    <button class="btn-secondary" id="btnClear" style="display:none" onclick="clearAll()">
+      🗑️ Limpar tudo
+    </button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* Desenvolvido por André Machado © 2026 */
+/* ============================================ */
+/* COLOCA A TUA CHAVE GEMINI DA GOOGLE NA LINHA ABAIXO: */
+/* ============================================ */
+window.GEMINI_KEY = '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';
+
+
+
+
+const STORES = [
+  { id: 'amial',       name: 'Amial',          city: 'Porto',             addr: "Domino's Pizza Amial, Estrada da Circunvalacao 8706, Sao Mamede de Infesta, Porto, Portugal" },
+  { id: 'campoalegre', name: 'Campo Alegre',   city: 'Porto',             addr: "Domino's Pizza Campo Alegre, Rua de Grijo 55, 4150-384 Porto, Portugal" },
+  { id: 'campusjoao',  name: 'Campus S.Joao',  city: 'Porto',             addr: "Domino's Pizza Campus Sao Joao, Centro Comercial Campus Sao Joao, Porto, Portugal" },
+  { id: 'matosinhos',  name: 'Matosinhos',     city: 'Matosinhos',        addr: "Domino's Pizza Matosinhos, Avenida da Republica 437, 4450-237 Matosinhos, Portugal" },
+  { id: 'maia',        name: 'Maia',           city: 'Maia',              addr: "Domino's Pizza Maia, Rua do Viso 46, 4470-220 Maia, Portugal" },
+  { id: 'gaia',        name: 'Gaia Centro',    city: 'Vila Nova de Gaia', addr: "Domino's Pizza Gaia, Rua Dom Pedro V 117, 4430-999 Vila Nova de Gaia, Portugal" },
+  { id: 'canelas',     name: 'Canelas',        city: 'Vila Nova de Gaia', addr: "Domino's Pizza Canelas, Canelas, Vila Nova de Gaia, Portugal" },
+];
+
+let selectedStore = STORES[0];
+const STORE = () => selectedStore.addr;
+const DRIVER_COLORS = ['#E31837','#006491','#2a7a00','#7a4a00','#6a00a0','#007a6a'];
+const DRIVER_EMOJIS = ['🚗','🛵','🚙','🚐','🏍️','🚕'];
+
+let orders = [];
+let groups = [];
+let editingIdx = null;
+let currentTab = 'all';
+
+// Store selector
+function initStoreGrid() {
+  const sel = document.getElementById('storeSelect');
+  if (!sel) return;
+  sel.innerHTML = '';
+  STORES.forEach((store) => {
+    const opt = document.createElement('option');
+    opt.value = store.id;
+    opt.textContent = store.name + ' - ' + store.city;
+    opt.selected = store.id === selectedStore.id;
+    sel.appendChild(opt);
+  });
+}
+
+function selectStore(id) {
+  const store = STORES.find(s => s.id === id);
+  if (!store) return;
+  selectedStore = store;
+  const sub = document.querySelector('.header-sub');
+  if (sub) sub.textContent = 'Gestão de Estafetas · ' + store.city;
+}
+
+document.getElementById('cameraInput').addEventListener('change', e => handleFiles(e));
+document.getElementById('galleryInput').addEventListener('change', e => handleFiles(e));
+
+async function handleFiles(e) {
+  const files = Array.from(e.target.files).filter(f => f.type.startsWith('image/'));
+  e.target.value = '';
+  if (!files.length) return;
+  setAnalyzing(true, 'A LER PEDIDOS...', 'A IA está a extrair as moradas');
+  for (const file of files) {
+    try {
+      const { base64, mimeType } = await toBase64(file);
+      const found = await extractAddresses(base64, mimeType);
+      orders.push(...found);
+      orders.sort((a, b) => parseInt(a.num||9999) - parseInt(b.num||9999));
+      groups = [];
+    } catch(err) { showToast('⚠️ ' + err.message); }
+  }
+  setAnalyzing(false);
+  render();
+}
+
+async function extractAddresses(base64img, mimeType) {
+  const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${window.GEMINI_KEY}`
+    },
+    body: JSON.stringify({
+      model: 'openrouter/auto',
+      messages: [{ role: 'user', content: [
+        { type: 'image_url', image_url: { url: `data:${mimeType};base64,${base64img}` } },
+        { type: 'text', text: `Domino's Pizza delivery system Porto Portugal.
+Extract ONLY delivery orders (ignore Carryout/pickup, Na loja, Allucan).
+For each order: number, address, and if timer is RED (urgent).
+Format: ORDER_NUM|FULL_ADDRESS|URGENT
+URGENT = true if red timer, false otherwise.
+Example: 27|Rua das Flores 123, 4200-001 Porto, Portugal|false
+One per line. If none: NO_ADDRESS_FOUND` }
+      ]}]
+    })
+  });
+  const data = await res.json();
+  if (data.error) throw new Error('API: ' + (data.error.message||JSON.stringify(data.error)));
+  const text = (data.choices?.[0]?.message?.content||'').trim();
+  if (!text || text==='NO_ADDRESS_FOUND') throw new Error('Nenhuma morada encontrada');
+  const items = text.split('\n').map(l=>l.trim()).filter(l=>l.includes('|')).map(l=>{
+    const parts = l.split('|');
+    const num = parts[0].replace(/\D/g,'');
+    const addr = parts[1]?.trim()||'';
+    const urgent = (parts[2]||'false').toLowerCase().includes('true');
+    return { num, addr, urgent };
+  }).filter(o=>o.addr.length>6);
+  if (!items.length) throw new Error('Nenhuma morada encontrada');
+  return items;
+}
+
+async function groupOrders() {
+  if (orders.length < 2) { showToast('Precisas de pelo menos 2 pedidos'); return; }
+  setAnalyzing(true, 'A AGRUPAR...', 'A calcular rotas por proximidade');
+  try {
+    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${window.GEMINI_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'openrouter/auto',
+        messages: [{ role: 'user', content: [{type:'text', text: promptText}] }]
+      })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error('API: ' + (data.error.message||JSON.stringify(data.error)));
+    const text = (data.candidates?.[0]?.content?.parts?.[0]?.text || '').trim();
+    const parsed = JSON.parse(text.replace(/```json|```/g,'').trim());
+    if (parsed.length > 0 && Array.isArray(parsed[0])) {
+      groups = parsed.map(g => ({ orders: g.map(num => orders.find(o=>o.num===num)).filter(Boolean), estimatedMinutes: null, zone: '', urgent: false })).filter(g=>g.orders.length>0);
+    } else {
+      groups = parsed.map(g => ({ orders: (g.orders||[]).map(num => orders.find(o=>o.num===num)).filter(Boolean), estimatedMinutes: g.estimatedMinutes||null, zone: g.zone||'', urgent: g.urgent||false })).filter(g=>g.orders.length>0);
+    }
+    switchTab('groups');
+    showToast('✓ Agrupado por proximidade!');
+  } catch(err) { showToast('⚠️ Erro ao agrupar'); }
+  setAnalyzing(false);
+  document.getElementById('analyzingTitle').textContent = 'A LER PEDIDOS...';
+  render();
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('tabAll').className = 'tab' + (tab==='all'?' active':'');
+  document.getElementById('tabGroups').className = 'tab' + (tab==='groups'?' active':'');
+  document.getElementById('allView').style.display = tab==='all'?'block':'none';
+  document.getElementById('groupsView').style.display = tab==='groups'?'block':'none';
+  document.getElementById('btnMaps').style.display = tab==='all'?'flex':'none';
+  document.getElementById('btnGroup').style.display = tab==='all'?'flex':'none';
+}
+
+function render() {
+  const count = orders.length;
+  document.getElementById('emptyState').style.display = count===0?'block':'none';
+  document.getElementById('contentArea').style.display = count>0?'block':'none';
+  document.getElementById('btnClear').style.display = count>0?'block':'none';
+  document.getElementById('badge').style.display = count>0?'flex':'none';
+  document.getElementById('badge').textContent = count + (count===1?' entrega':' entregas');
+  document.getElementById('btnMaps').disabled = count===0;
+  document.getElementById('btnGroup').disabled = count<2;
+  document.getElementById('btnMapsText').textContent = count===0?'ABRIR ROTA NO MAPS':`ABRIR ROTA — ${count} PARAGEM${count!==1?'S':''}`;
+  document.getElementById('deliveriesCount').textContent = count + (count===1?' pedido':' pedidos');
+
+  const list = document.getElementById('deliveriesList');
+  list.innerHTML = '';
+  orders.forEach((order, i) => {
+    const isEditing = editingIdx===i;
+    const label = order.num ? `#${order.num}` : `${i+1}`;
+    if (i > 0) { const c = document.createElement('div'); c.className = 'connector'; list.appendChild(c); }
+    const card = document.createElement('div');
+    card.className = 'delivery-item';
+    card.innerHTML = `
+      <div class="delivery-num" style="${order.urgent?'background:#1a0005;border-color:#E31837;':''}">
+        <span class="num-label">${order.urgent?'🔴':'PED.'}</span>
+        <span class="num-val" style="${order.urgent?'color:#E31837;':''}">${order.num||i+1}</span>
+      </div>
+      <div class="delivery-card">
+        <div class="delivery-card-top">
+          <span class="delivery-order-num" style="${order.urgent?'background:#2a0005;border-color:#E31837;color:#ff4466;':''}">${label}${order.urgent?' ⚡':''}</span>
+          <button class="btn-del" onclick="removeOrder(${i})">×</button>
+        </div>
+        <div class="delivery-addr ${isEditing?'editing':''}">${order.addr}</div>
+        ${isEditing?`<input class="edit-input" id="ei-${i}" value="${order.addr.replace(/"/g,'&quot;')}" onkeydown="if(event.key==='Enter')saveEdit(${i})">` : ''}
+        <div class="delivery-actions">
+          ${isEditing
+            ? `<button class="btn-sm save" onclick="saveEdit(${i})">✓ Guardar</button>`
+            : `<button class="btn-sm" onclick="startEdit(${i})">✏️ Editar</button>`}
+        </div>
+      </div>`;
+    list.appendChild(card);
+    if (isEditing) setTimeout(()=>{ const inp=document.getElementById(`ei-${i}`); if(inp)inp.focus(); },50);
+  });
+
+  renderGroups();
+}
+
+function renderGroups() {
+  const gl = document.getElementById('groupsList');
+  gl.innerHTML = '';
+  if (!groups.length) {
+    gl.innerHTML = `<div class="empty" style="padding:30px 0"><span style="font-size:48px;display:block;margin-bottom:12px">🚗</span><div style="color:#444;font-size:13px;line-height:1.7">Carrega em<br><strong style="color:#666">"Organizar por Estafeta"</strong><br>para ver os grupos</div></div>`;
+    return;
+  }
+  groups.forEach((grp, gi) => {
+    const grpOrders = grp.orders||grp;
+    const estMin = grp.estimatedMinutes;
+    const zone = grp.zone||'';
+    const isUrgent = grp.urgent || grpOrders.some(o=>o.urgent);
+    const color = DRIVER_COLORS[gi % DRIVER_COLORS.length];
+    const emoji = DRIVER_EMOJIS[gi % DRIVER_EMOJIS.length];
+    const block = document.createElement('div');
+    block.className = 'group-card';
+    block.style.borderColor = isUrgent ? '#E31837' : '';
+    block.innerHTML = `
+      <div class="group-card-header" style="background:${isUrgent?'#2a0008':color+'18'}; border-bottom: 1px solid ${isUrgent?'#5a0015':color+'30'}">
+        <div class="group-driver">
+          <div class="group-avatar" style="background:${color}25">${isUrgent?'🔴':emoji}</div>
+          <div class="group-info">
+            <div class="group-name" style="color:${isUrgent?'#ff4466':color}">${isUrgent?'⚡ ':''} ESTAFETA ${gi+1}</div>
+            <div class="group-orders-label">
+              ${grpOrders.map(o=>'#'+o.num+(o.urgent?' 🔴':'')).join(' · ')} · ${grpOrders.length} entrega${grpOrders.length!==1?'s':''}
+              ${zone ? ` · 📍 ${zone}` : ''}
+              ${estMin ? ` · ⏱️ ~${estMin} min` : ''}
+            </div>
+          </div>
+        </div>
+        <button class="btn-open-maps" style="background:${isUrgent?'#E31837':color}" onclick="openMapsGroup(${gi})">🗺️ ABRIR</button>
+      </div>
+      <div class="group-stops">
+        ${grpOrders.map((o)=>`
+          <div class="group-stop" style="${o.urgent?'background:#1a0005;':''}">
+            <div class="group-stop-num" style="background:${o.urgent?'#E31837':color+'25'};color:${o.urgent?'#fff':color};border:1px solid ${o.urgent?'#E31837':color+'40'}">#${o.num}</div>
+            <div class="group-stop-addr">${o.urgent?'<span style="color:#ff6680;font-size:10px;display:block">⚡ URGENTE</span>':''}${o.addr}</div>
+          </div>`).join('')}
+      </div>`;
+    gl.appendChild(block);
+  });
+}
+
+function startEdit(i) { editingIdx=i; render(); }
+function saveEdit(i) {
+  const inp=document.getElementById(`ei-${i}`);
+  if(inp&&inp.value.trim()) orders[i].addr=inp.value.trim();
+  editingIdx=null; render();
+}
+function removeOrder(i) { orders.splice(i,1); groups=[]; if(editingIdx===i)editingIdx=null; render(); }
+function clearAll() { orders=[]; groups=[]; editingIdx=null; currentTab='all'; switchTab('all'); render(); }
+
+function openMapsAll() {
+  if(!orders.length) return;
+  const o=encodeURIComponent(STORE());
+  const d=encodeURIComponent(orders[orders.length-1].addr);
+  const w=orders.slice(0,-1).map(x=>encodeURIComponent(x.addr)).join('|');
+  let url=`https://www.google.com/maps/dir/?api=1&origin=${o}&destination=${d}`;
+  if(w) url+=`&waypoints=${w}`;
+  url+=`&travelmode=driving`;
+  window.open(url,'_blank');
+}
+
+function openMapsGroup(gi) {
+  const g=groups[gi]; if(!g) return;
+  const grp=g.orders||g; if(!grp||!grp.length) return;
+  const o=encodeURIComponent(STORE());
+  const d=encodeURIComponent(grp[grp.length-1].addr);
+  const w=grp.slice(0,-1).map(x=>encodeURIComponent(x.addr)).join('|');
+  let url=`https://www.google.com/maps/dir/?api=1&origin=${o}&destination=${d}`;
+  if(w) url+=`&waypoints=${w}`;
+  url+=`&travelmode=driving`;
+  window.open(url,'_blank');
+}
+
+function setAnalyzing(show, title, sub) {
+  document.getElementById('analyzingState').style.display = show?'block':'none';
+  if(title) document.getElementById('analyzingTitle').textContent=title;
+  if(sub) document.getElementById('analyzingSub').textContent=sub;
+  if(show) { document.getElementById('emptyState').style.display='none'; document.getElementById('contentArea').style.display='none'; }
+  else render();
+}
+
+function showToast(msg) {
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+function toBase64(file) {
+  return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res({base64:r.result.split(',')[1],mimeType:file.type}); r.onerror=rej; r.readAsDataURL(file); });
+}
+
+initStoreGrid();
+render();
+
+</script>
+
+<div style="text-align:center;padding:20px 0 8px;font-size:12px;color:#444;font-family:'Barlow',sans-serif;letter-spacing:0.5px;">
+  Desenvolvido por <strong style="color:#666">André Machado</strong> © 2026
+</div>
+</body>
+</html>
